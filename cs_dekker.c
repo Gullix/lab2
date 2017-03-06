@@ -32,6 +32,8 @@ static void
 impl_enter_critical(int thread)
 {
         assert(thread == 0 || thread == 1);
+        flag[thread] = 1;
+        MFENCE();
         while(flag[!thread])
         {
                 if(turn != thread)
@@ -39,6 +41,7 @@ impl_enter_critical(int thread)
                         flag[thread] = 0;
                         while(turn != thread){}
                         flag[thread] = 1;
+                        MFENCE();
                 }
         }
         /* HINT: Since Dekker's algorithm only works for 2 threads,

@@ -66,15 +66,9 @@ lh_acquire(int ** volatile l, int ** volatile i, volatile int ** volatile p)
         assert (**i == 0);
         assert (*i == *p);
         **i = 1;
-        success = 0;
-        while(!success){
-                int* a = *l;
-                int* b = *p;
-                int c = asm_atomic_cmpxchg_int32(*p, (int32_t)b, (int32_t)a);
-                int d = asm_atomic_cmpxchg_int32(*l, (int32_t)a, (int32_t)b);
-                if(b == &c && a == &d){success = 1;}
-        }
-        while(**p != 0)
+
+        *p = asm_atomic_xchg_voidp((void**)l, (void*)*p);
+        while(**p != 0){}
 
         /* BONUS TASK: Implement the acquire part of the CLH locking
          * algorithm as described in the lecture notes. */
